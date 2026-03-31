@@ -41,50 +41,30 @@
 
     const solutions = {
       "Тянет поводок": {
-        steps: [
-          "Остановись при натяжении поводка",
-          "Жди ослабления",
-          "Продолжай движение"
-        ],
+        steps: ["Остановись при натяжении поводка", "Жди ослабления", "Продолжай движение"],
         exercise: "→ 5 минут: каждый раз стоп при натяжении"
       },
       "Не подходит по команде": {
-        steps: [
-          "Зови собаку коротким словом",
-          "Награждай за подход",
-          "Повторяй 5–10 раз"
-        ],
+        steps: ["Зови собаку коротким словом", "Награждай за подход", "Повторяй 5–10 раз"],
         exercise: "→ 5 минут: тренируем подход с лакомством"
       },
       "Перевозбуждается": {
-        steps: [
-          "Сохраняй спокойствие",
-          "Игнорируй чрезмерное поведение",
-          "Награждай за спокойствие"
-        ],
+        steps: ["Сохраняй спокойствие", "Игнорируй чрезмерное поведение", "Награждай за спокойствие"],
         exercise: "→ 5 минут: каждый раз награждай спокойное поведение"
       },
       "Прыгает на людей": {
-        steps: [
-          "Остановись и игнорируй собаку",
-          "Жди, пока не перестанет прыгать",
-          "Продолжай движение"
-        ],
+        steps: ["Остановись и игнорируй собаку", "Жди, пока не перестанет прыгать", "Продолжай движение"],
         exercise: "→ 5 минут: тренируем стоять спокойно при встрече с людьми"
       },
       "Тянется к другим собакам": {
-        steps: [
-          "Используй короткий поводок",
-          "Привлекай внимание лакомством",
-          "Меняй направление при настойчивости"
-        ],
+        steps: ["Используй короткий поводок", "Привлекай внимание лакомством", "Меняй направление при настойчивости"],
         exercise: "→ 5 минут: тренируем внимание на хозяине, игнорируя других собак"
       }
     };
 
     document.getElementById("startBtn").addEventListener("click", () => {
-      const dogName = document.getElementById("dogName").value || null;
-      const userId = tg.initDataUnsafe?.user?.id || "TEST_USER_ID";
+      const dogName = document.getElementById("dogName").value || "не указано";
+      const userId = (tg.initDataUnsafe?.user?.id) || "TEST_USER_ID"; // fallback для браузера
 
       console.log("Telegram ID:", userId);
       console.log("Имя собаки:", dogName);
@@ -96,8 +76,7 @@
       onboardingDiv.style.display = "none";
       problemDiv.style.display = "block";
 
-      // создаём кнопки проблем
-      problemsContainer.innerHTML = ""; // на случай перезапуска
+      problemsContainer.innerHTML = "";
       problems.forEach(problem => {
         const btn = document.createElement("button");
         btn.innerText = problem;
@@ -108,12 +87,10 @@
 
     function showSolution(problem) {
       localStorage.setItem("currentProblem", problem);
-
       const solution = solutions[problem];
 
       problemDiv.style.display = "none";
 
-      // создаём экран решения
       const solutionDiv = document.createElement("div");
       solutionDiv.id = "solutionDiv";
 
@@ -128,9 +105,7 @@
       solutionDiv.innerHTML = html;
       document.body.appendChild(solutionDiv);
 
-      document.getElementById("startExercise").onclick = () => {
-        startTrainingTimer(5 * 60); // 5 минут
-      };
+      document.getElementById("startExercise").onclick = () => startTrainingTimer(5 * 60);
     }
 
     function startTrainingTimer(seconds) {
@@ -146,7 +121,6 @@
         if (remaining < 0) {
           clearInterval(interval);
           alert("Тренировка завершена!");
-          // можно здесь сохранять результат "да/нет"
           localStorage.setItem("trainingCompleted", new Date().toISOString());
         }
       }, 1000);
