@@ -2,22 +2,155 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Онбординг</title>
+  <title>Mini App - собаки</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button { padding: 10px 15px; font-size: 16px; }
+    #problems button { width: 100%; margin: 5px 0; }
+    #timer { font-size: 20px; margin-top: 10px; }
+  </style>
 </head>
 <body>
-  <h1>Привет! Начнем?</h1>
-  <input type="text" id="dogName" placeholder="Имя собаки (необязательно)">
-  <button id="startBtn">Начать</button>
+  <!-- ОНБОРДИНГ -->
+  <div id="onboarding">
+    <h1>Привет! Начнем?</h1>
+    <input type="text" id="dogName" placeholder="Имя собаки (необязательно)">
+    <button id="startBtn">Начать</button>
+  </div>
+
+  <!-- ВЫБОР ПРОБЛЕМЫ -->
+  <div id="problemSelection" style="display:none;">
+    <h2>Выберите проблему:</h2>
+    <div id="problems"></div>
+  </div>
 
   <script>
-    const tg = window.Telegram.WebApp;
+    const tg = window.Telegram?.WebApp || {}; // Telegram WebApp объект
+
+    const onboardingDiv = document.getElementById("onboarding");
+    const problemDiv = document.getElementById("problemSelection");
+    const problemsContainer = document.getElementById("problems");
+
+    const problems = [
+      "Тянет поводок",
+      "Не подходит по команде",
+      "Перевозбуждается",
+      "Прыгает на людей",
+      "Тянется к другим собакам"
+    ];
+
+    const solutions = {
+      "Тянет поводок": {
+        steps: [
+          "Остановись при натяжении поводка",
+          "Жди ослабления",
+          "Продолжай движение"
+        ],
+        exercise: "→ 5 минут: каждый раз стоп при натяжении"
+      },
+      "Не подходит по команде": {
+        steps: [
+          "Зови собаку коротким словом",
+          "Награждай за подход",
+          "Повторяй 5–10 раз"
+        ],
+        exercise: "→ 5 минут: тренируем подход с лакомством"
+      },
+      "Перевозбуждается": {
+        steps: [
+          "Сохраняй спокойствие",
+          "Игнорируй чрезмерное поведение",
+          "Награждай за спокойствие"
+        ],
+        exercise: "→ 5 минут: каждый раз награждай спокойное поведение"
+      },
+      "Прыгает на людей": {
+        steps: [
+          "Остановись и игнорируй собаку",
+          "Жди, пока не перестанет прыгать",
+          "Продолжай движение"
+        ],
+        exercise: "→ 5 минут: тренируем стоять спокойно при встрече с людьми"
+      },
+      "Тянется к другим собакам": {
+        steps: [
+          "Используй короткий поводок",
+          "Привлекай внимание лакомством",
+          "Меняй направление при настойчивости"
+        ],
+        exercise: "→ 5 минут: тренируем внимание на хозяине, игнорируя других собак"
+      }
+    };
 
     document.getElementById("startBtn").addEventListener("click", () => {
       const dogName = document.getElementById("dogName").value || null;
-      const userId = tg.initDataUnsafe.user.id;
+      const userId = tg.initDataUnsafe?.user?.id || "TEST_USER_ID";
 
-      alert(`ID: ${userId}\nСобака: ${dogName || "не указано"}`);
+      console.log("Telegram ID:", userId);
+      console.log("Имя собаки:", dogName);
+
+      localStorage.setItem("dogName", dogName);
+      localStorage.setItem("userId", userId);
+
+      // скрываем онбординг, показываем выбор проблем
+      onboardingDiv.style.display = "none";
+      problemDiv.style.display = "block";
+
+      // создаём кнопки проблем
+      problemsContainer.innerHTML = ""; // на случай перезапуска
+      problems.forEach(problem => {
+        const btn = document.createElement("button");
+        btn.innerText = problem;
+        btn.onclick = () => showSolution(problem);
+        problemsContainer.appendChild(btn);
+      });
     });
+
+    function showSolution(problem) {
+      localStorage.setItem("currentProblem", problem);
+
+      const solution = solutions[problem];
+
+      problemDiv.style.display = "none";
+
+      // создаём экран решения
+      const solutionDiv = document.createElement("div");
+      solutionDiv.id = "solutionDiv";
+
+      let html = `<h2>Проблема: ${problem}</h2>`;
+      html += "<ol>";
+      solution.steps.forEach(step => { html += `<li>${step}</li>`; });
+      html += "</ol>";
+      html += `<p>${solution.exercise}</p>`;
+      html += `<button id="startExercise">Тренироваться сейчас</button>`;
+      html += `<div id="timer"></div>`;
+
+      solutionDiv.innerHTML = html;
+      document.body.appendChild(solutionDiv);
+
+      document.getElementById("startExercise").onclick = () => {
+        startTrainingTimer(5 * 60); // 5 минут
+      };
+    }
+
+    function startTrainingTimer(seconds) {
+      const timerDiv = document.getElementById("timer");
+      let remaining = seconds;
+
+      const interval = setInterval(() => {
+        const min = Math.floor(remaining / 60);
+        const sec = remaining % 60;
+        timerDiv.innerText = `Время тренировки: ${min}:${sec < 10 ? "0"+sec : sec}`;
+        remaining--;
+
+        if (remaining < 0) {
+          clearInterval(interval);
+          alert("Тренировка завершена!");
+          // можно здесь сохранять результат "да/нет"
+          localStorage.setItem("trainingCompleted", new Date().toISOString());
+        }
+      }, 1000);
+    }
   </script>
 </body>
 </html>
