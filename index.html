@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Онбординг</title>
+</head>
+<body>
+  <h1>Привет! Начнем?</h1>
+  <input type="text" id="dogName" placeholder="Имя собаки (необязательно)">
+  <button id="startBtn">Начать</button>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const dogName = document.getElementById("dogName").value || null;
+      const userId = tg.initDataUnsafe.user.id;
+
+      alert(`ID: ${userId}\nСобака: ${dogName || "не указано"}`);
+    });
+  </script>
+</body>
+</html>
